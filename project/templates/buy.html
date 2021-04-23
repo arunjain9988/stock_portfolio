@@ -10,36 +10,36 @@
         <select data-placeholder="Choose a country..." class="standardSelect">
           <option value=""></option>
           <option value="United States" selected disabled>Select Customer</option>
-          <option value="United Kingdom">United Kingdom</option>
-          <option value="Afghanistan">Afghanistan</option>
-          <option value="Aland Islands">Aland Islands</option>
-          <option value="Albania">Albania</option>
-          <option value="Algeria">Algeria</option>
-          <option value="American Samoa">American Samoa</option>
-          <option value="Andorra">Andorra</option>
-          <option value="Angola">Angola</option>
-          <option value="Anguilla">Anguilla</option>
-          <option value="Antarctica">Antarctica</option>
+          {% for customer in customers.all %}
+          <option value="United Kingdom">{{customer}}</option>
+          {% endfor %}
         </select>
       </div>
     </div>
     <div class="col-xs-12 col-sm-3">
       <div class="card-body">
-        <select data-placeholder="Choose a country..." class="standardSelect">
+        <select data-placeholder="Choose a country..." class="standardSelect" onchange="changePrice(value)">
           <option value=""></option>
           <option value="United States" selected disabled>Select Stock</option>
-          <option value="United Kingdom">United Kingdom</option>
-          <option value="Afghanistan">Afghanistan</option>
-          <option value="Aland Islands">Aland Islands</option>
-          <option value="Albania">Albania</option>
-          <option value="Algeria">Algeria</option>
-          <option value="American Samoa">American Samoa</option>
-          <option value="Andorra">Andorra</option>
-          <option value="Angola">Angola</option>
-          <option value="Anguilla">Anguilla</option>
-          <option value="Antarctica">Antarctica</option>
+          {% for stock in stocks.all %}
+          <option value="{{stock.pk}}">{{stock}}</option>
+          {% endfor %}
         </select>
       </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-3">
+        <div class="mt-4 ml-5">Current Price:&nbsp;
+            <span id="stock_price">
+            </span>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-3">
+        <button id="payment-button" type="submit" class="btn btn-info mt-3">
+          <i class="fa fa-lock fa-lg"></i>&nbsp;
+          <span id="payment-button-amount">Confirm</span>
+          <span id="payment-button-sending" style="display: none">Sending…</span>
+        </button>
     </div>
   </div>
   <!-- <div
@@ -226,55 +226,22 @@
   </script>
 
   <script>
-    (function ($) {
-      //    "use strict";
 
-      /*  Data Table
-    -------------*/
+      custm = {}
+      var st = -1;
+      {% for c in stocks.all %} 
+      //if (st==-1) st = "{{c.current_price}}";
+      custm["{{c.pk}}"] = "{{c.current_price}}";
+      {% endfor %}
+      console.log(custm);
+      document.getElementById('stock_price').innerHTML = "";
+        
+      
+      function changePrice(key) {
+          console.log(key);
+            document.getElementById('stock_price').innerHTML = custm[key];
+        }
 
-      $("#bootstrap-data-table").DataTable({
-        lengthMenu: [
-          [10, 20, 50, -1],
-          [10, 20, 50, "All"],
-        ],
-      });
-
-      $("#bootstrap-data-table-export").DataTable({
-        serching: false,
-        dom: "lrtip",
-        bLengthChange: false,
-        lengthMenu: [
-          [8, 25, 50, -1],
-          [8, 25, 50, "All"],
-        ],
-        buttons: ["copy", "csv", "excel", "pdf", "print"],
-      });
-
-      $("#row-select").DataTable({
-        initComplete: function () {
-          this.api()
-            .columns()
-            .every(function () {
-              var column = this;
-              var select = $('<select class="form-control"><option value=""></option></select>')
-                .appendTo($(column.footer()).empty())
-                .on("change", function () {
-                  var val = $.fn.dataTable.util.escapeRegex($(this).val());
-
-                  column.search(val ? "^" + val + "$" : "", true, false).draw();
-                });
-
-              column
-                .data()
-                .unique()
-                .sort()
-                .each(function (d, j) {
-                  select.append('<option value="' + d + '">' + d + "</option>");
-                });
-            });
-        },
-      });
-    })(jQuery);
   </script>
   {% endblock %}
 </div>

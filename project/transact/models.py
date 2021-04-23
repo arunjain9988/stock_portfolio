@@ -1,5 +1,6 @@
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 import requests
 
 # Create your models here.
@@ -11,20 +12,35 @@ class Address(models.Model):
     pincode = models.CharField(max_length=20)
     country = models.CharField(max_length=50)
 
+# class User(AbstractUser):
+    # fname = models.CharField(max_length=200)
+    # lname = models.CharField(max_length=200)
+    # email = models.CharField(max_length=100)
+    # password = models.CharField(max_length=50)
+    # address = models.ForeignKey(Address,on_delete=models.PROTECT)
+    # mobile = models.CharField(max_length=12)
+    # created_date = models.DateField(auto_now=True)
+    # def full_name(self):
+    #     return self.fname+ ' '+  self.lname
+    
+    # def __str__(self):
+    #     return self.full_name()
+
 class Customer(models.Model):
-    NAME_PREFIX_CHOICES = [
+    SALUTATION_CHOICES = [
         ('A','Mr'),
         ('C','Miss'),
         ('B','Mrs'),
     ]
-    name_prefix = models.CharField(max_length=1,choices=NAME_PREFIX_CHOICES)
+    salutation = models.CharField(max_length=1,choices=SALUTATION_CHOICES)
     fname = models.CharField(max_length=50)
     lname = models.CharField(max_length=50)
-    address = models.ForeignKey(Address,on_delete=models.PROTECT)
+    # address = models.ForeignKey(Address,on_delete=models.PROTECT)
     email = models.CharField(max_length=200)
     mobile = models.CharField(max_length=100,null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     def full_name(self):
-        return self.get_name_prefix_display() + ' ' + self.fname+ ' '+  self.lname
+        return self.get_salutation_display() + ' ' + self.fname+ ' '+  self.lname
     def assets(self):
         values = Transaction.objects.filter(customer = self)
         # print('call')
@@ -47,7 +63,7 @@ class Stock(models.Model):
             "token":"pk_d53d8b6d9e404d16baf23b3e51c46dbc",
         })
         # print(ret)
-        return ret.json
+        return ret.json()
     def is_market_open():
         ret = requests.get("https://cloud.iexapis.com/stable/stock/T/quote/isUSMarketOpen",
         params={
@@ -55,7 +71,7 @@ class Stock(models.Model):
         })
         # print(ret)
         print(type(ret.json))
-        return ret.json
+        return ret.json()
     def __str__(self):
         return self.symbol
 
@@ -72,6 +88,7 @@ class Transaction(models.Model):
     quantity = models.FloatField()
     commision = models.FloatField()
     type = models.CharField(max_length=1,choices=TRANSACTION_TYPE_CHOICES)
+
 
 
 
